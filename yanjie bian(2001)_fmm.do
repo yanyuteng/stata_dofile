@@ -173,6 +173,7 @@ recode ecosector2(.=0)
 *** gen ecosector
 gen ecosector = ecosector1 + ecosector2
 recode ecosector(0=.)
+recode ecosector(2=0)
 *** label ecosector
 label define ecosectorl 1"gov" 0"market"
 label value ecosector ecosectorl
@@ -389,9 +390,12 @@ gen lfincome = ln(fincome)
 *** hist lincome
 fmm 3: regress lfincome
 estat lcprob
+predict den,density marginal
+histogram lfincome ,normal 
 
 fmm 1: regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
 *** estat lcprob
+estimates store fmm1
 fmm 2: regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
 estimates store fmm2
 fmm 3: regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
@@ -404,19 +408,19 @@ estimates stats fmm1 fmm2 fmm3
 *** estimates store fmm3f
 *** estimates stats fmm3 fmm3f
 
-fmm 3, lcprob(hukou):regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
+fmm 3, lcprob(gender):regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
 estimates store fmm3f
 estimates stats fmm3 fmm3f
 *** when we set hukou as the constraint var, the model does improve
 
 ****************  improve model_different equation ****************
-fmm, lcprob(hukou):(regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize) (regress lfincome net_captial i.class i.hukou i.gender edu) (regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize)
+fmm, lcprob(gender):(regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize) (regress lfincome net_captial i.class i.hukou i.gender edu) (regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize)
 estimates store fmm3ff
 estimates stats fmm3f fmm3ff
 *** does not improve
 
 ****************  compare coef ****************
-fmm 3, lcprob(hukou):regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
+fmm 3, lcprob(gender):regress lfincome net_captial i.class degree_depart degree_market i.hukou i.gender age age2 edu i.party i.ecosector i.department danweisize
 estimates store fmm3f
 fmm, coeflegend
 test _b[lfincome:3.Class#c.net_captial] = _b[lfincome:1.Class#c.net_captial]
@@ -428,3 +432,4 @@ contrast c.net_captial#a.Class, equation(lfincome)
 
 
 ********************************* END by yuteng ********************************
+
